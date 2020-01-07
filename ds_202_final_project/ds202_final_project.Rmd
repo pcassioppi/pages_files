@@ -1,0 +1,133 @@
+---
+title: "DS202_final_project"
+author: "Peter Cassioppi"
+date: "1/6/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Geographical Data
+The dataset provides useful location data for each listing that can provide some insight into different geographical areas. [Peter]
+```{r}
+airbnb_clean = read.csv("airbnb.csv")
+
+library(ggmap)
+
+library(RColorBrewer)
+bbox = c(-87.8,41.73,-87.5,42.05)
+m = get_stamenmap(bbox,zoom=12)
+
+#made a new dataframe so only the listings with exact locations were used in mapping plots (where is_location_exact = TRUE))
+airbnb_clean2 = airbnb_clean[airbnb_clean$is_location_exact==TRUE,]
+#dropping West Elsdon neighbourhood because there is only one listing in that neighbourhood and it was skewing the data/graphs due to its irregularity
+airbnb_clean2 = airbnb_clean2[airbnb_clean2$neighbourhood!='West Elsdon',]
+
+```
+
+
+```{r}
+ggmap(m) +
+    geom_point(data = airbnb_clean2, aes(x = longitude, y = latitude, color=price_category), size=.9, alpha=.75) +
+    coord_sf(xlim = c(-87.8, -87.5), ylim = c(41.73, 42.05), expand = FALSE)+
+    labs(title="Price Categories Mapped", y = "Latitude",x = "Longitude", color="Price Category")+ 
+    scale_color_brewer(palette="Dark2")
+```
+This plot shows us that the listings outside of the cities are usually cheaper than the listing inside the city, due to the high presence of orange and green dots on the outskirts of the graph, with more purple and blue as you get closer to the Loop, the heart of the city. There also seems to be a large number of purple points in the northern part of the city, towards Lake View and Lincoln Park (The area known as "Wrigleyville").
+
+
+
+
+---
+```{r}
+ggplot(data=airbnb_clean2, aes(x=reorder(neighbourhood,-price), y=price)) +
+  geom_bar(position = "dodge", stat = "summary", fun.y = "mean", fill='Light Blue', color = 'Red')+
+  theme(axis.text.x = element_text(angle=90,hjust=0.95,vjust=0.2))+ 
+  scale_y_continuous(breaks = seq(0, max(airbnb_clean$price), by = 20))+
+  labs(title="Neighbourhoods By Mean Price", y = "Mean Price ($)",x = "Neighbourhood")+
+  stat_summary(aes(label=round(..y..,2)), fun.y=mean, geom="text", size=3, hjust=-0.1, angle=90)
+  #the labels on each bar were made using code similar to the one from user agstudy on stack over flow here:
+  #https://stackoverflow.com/questions/20139978/ggplot2-label-values-of-barplot-that-uses-fun-y-mean-of-stat-summary
+```
+
+This graph tells us that our assumptions from the map were mostly true, as the neighborhoods that are closer to the center (the Loop, Near North Side, ) of the city are more expensive on average, and some northern neighborhoods (Lake View, North Center, Lincoln Park) are also towards the top of this graph.
+
+```{r}
+ggmap(m) +
+    geom_point(data = airbnb_clean2, aes(x = longitude, y = latitude, color=room_type), size = .9, alpha=.75) +
+    coord_sf(xlim = c(-87.8, -87.5), ylim = c(41.73, 42.05), expand = FALSE)+
+    labs(title="Room Types Mapped", y = "Latitude",x = "Longitude", color="Room Type")+ 
+    scale_color_brewer(palette="Dark2")
+```
+
+From this graph, we can assume that there are more entire units listed in the middle of the middle of the city due to the overwhelming green. This may be because the apartments in the city are smaller, and it would be harder for a guest to share that room with somebody else. We can see more orange on the northern and western parts of the city, as these are typically where single family homes are built.
+
+```{r}
+ggplot(airbnb_clean2, aes(x=reorder(neighbourhood,-price), fill=room_type))+geom_bar(position="fill")+
+  theme(axis.text.x = element_text(angle=90,hjust=0.95,vjust=0.2))+ 
+  labs(title="Neighbourhood Room Types Ordered by Mean Price Descending", y = "Room Type %",x = "Neighbourhood", fill="Room Type")+
+  scale_fill_brewer(palette="Set2")
+```
+
+This graph tells us some valuable information about the listings in the city. As the prices go up, typically, the odds of the listing being a entire apartment or house go up. This information could be useful to a potential lister in Chicago, if they want to charge more for their listing, they may have to rent out their whole unit.
+
+```{r}
+ggmap(m) +
+    geom_point(data = airbnb_clean2, aes(x = longitude, y = latitude, color=factor(bedrooms)), size=.9, alpha=.75) +
+    coord_sf(xlim = c(-87.8, -87.5), ylim = c(41.73, 42.05), expand = FALSE)+
+    labs(title="# of Bedrooms Mapped", y = "Latitude",x = "Longitude", color="Bedrooms")+ 
+    scale_color_brewer(palette="Set1")
+```
+That NA value seems out of place, so we need to figure out how many there are, and if there are many, what does it mean?
+```{r}
+na_bedrooms = airbnb_clean2[is.na(airbnb_clean2$bedrooms),]
+
+```
+There is only one row with the NA value in bedrooms, and looking at the dataframe in rstudio, it seems that it is a small studio for which the lister put NA instead of 0. That should be switched to a zero.
+```{r}
+
+airbnb_clean2[is.na(airbnb_clean2$bedrooms),]$bedrooms = 0
+```
+
+```{r}
+ggmap(m) +
+    geom_point(data = airbnb_clean2, aes(x = longitude, y = latitude, color=factor(bedrooms)), size=.9, alpha=.75) +
+    coord_sf(xlim = c(-87.8, -87.5), ylim = c(41.73, 42.05), expand = FALSE)+
+    labs(title="# of Bedrooms Mapped", y = "Latitude",x = "Longitude", color="Bedrooms")+ 
+    scale_color_brewer(palette="Set1")
+```
+Much better. From this fixed plot we can see that it is rare for a listing in Chicago to have more than one or two bedrooms, based on the fact that there are a large number of blue, red and green points in the middle of the city. The presence of red points tell us that there are more studio apartments in the area, which would make sense considering the red points on this graph are right near the Magnificent Mile, one of the most sought after, and expensive, areas in the city.
+---
+```{r}
+ggplot(data=airbnb_clean2, aes(x=reorder(neighbourhood,-price), y=bedrooms)) +
+  geom_bar(position = "dodge", stat = "summary", fun.y = "mean", fill='Light Blue', color = 'Red')+
+  theme(axis.text.x = element_text(angle=90,hjust=0.95,vjust=0.2))+ 
+  labs(title="Mean Bedrooms per Neighbourhood Sorted by Mean Price Descending", y = "Mean Bedrooms",x = "Neighbourhood")+
+  stat_summary(aes(label=round(..y..,2)), fun.y=mean, geom="text", size=2, vjust = -0.5)
+```
+
+This bar chart tells us that most listings in the city lie between one and two bedrooms. This graph also seems to show less of a relationship than the room type bar graph, as it does not seem to flow in a certain direction like the other one did.
+
+```{r}
+ggmap(m) +
+    geom_point(data = airbnb_clean2, aes(x = longitude, y = latitude, color=factor(accommodates)), size=.9, alpha=.75) +
+    coord_sf(xlim = c(-87.8, -87.5), ylim = c(41.73, 42.05), expand = FALSE)+
+    labs(title="Accomodations for # of People", y = "Latitude",x = "Longitude", color="# of People")
+
+```
+
+Here we can see that the normal listing in the middle of Chicago is not meant to accommodate more that ~5 people, given that there are mainly orange, gold and gold/green points in the heart of the city. This tracks with our previous graph of bedrooms, as less bedrooms would mean less guests could stay in that listing.
+
+```{r}
+ggplot(data=airbnb_clean2, aes(x=reorder(neighbourhood,-price), y=accommodates)) +
+  geom_bar(position = "dodge", stat = "summary", fun.y = "mean", fill='Light Blue', color = 'Red')+
+  theme(axis.text.x = element_text(angle=90,hjust=0.95,vjust=0.2))+ 
+  scale_y_continuous(breaks = seq(0, max(airbnb_clean$accommodates), by = 1))+
+  labs(title="Mean # of Guest Accommodations per Neighbourhood Ordered by Mean Price", y = "Mean Accommodations",x = "Neighbourhood")+
+  stat_summary(aes(label=round(..y..,2)), fun.y=mean, geom="text", size=3, angle=90, hjust=-.11)
+```
+
+Here, we can see that neighbourhoods with higher priced listings do have some larger accommodation sizes that other less expensive neighbourhoods. This graph also tells us that most listings fit around 3-4 people, which does make sense logically, as most apartments or units typically have a 2 person bed and a couch. Many AirBnB hosts make sure that couch is a sleeper sofa, which would account for 1-2 more people.
+

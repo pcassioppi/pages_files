@@ -1,0 +1,13 @@
+----------------------------------------------------------------
+Tue Jan 07 12:42:30 CST 2020:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.13.1.1 - (1765088): instance a816c00e-016f-8150-be57-000003df59a0 
+on database directory C:\Users\Peter\eclipse-workspace\mis307_final_project\BigJavaDB with class loader jdk.internal.loader.ClassLoaders$AppClassLoader@312b1dae 
+Loaded from file:/C:/Users/Peter/Downloads/derby.jar
+java.vendor=Oracle Corporation
+java.runtime.version=12.0.2+10
+user.dir=C:\Users\Peter\eclipse-workspace\mis307_final_project
+os.name=Windows 8.1
+os.arch=amd64
+os.version=6.3
+derby.system.home=null
+Database Class Loader started - derby.database.classpath=''
