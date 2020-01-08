@@ -14,7 +14,9 @@ The dataset provides useful location data for each listing that can provide some
 ```{r}
 airbnb_clean = read.csv("airbnb.csv")
 
+library(ggplot2)
 library(ggmap)
+
 
 library(RColorBrewer)
 bbox = c(-87.8,41.73,-87.5,42.05)
