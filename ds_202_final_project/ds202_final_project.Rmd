@@ -10,7 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ## Geographical Data
-The dataset provides useful location data for each listing that can provide some insight into different geographical areas. [Peter]
+The dataset provides useful location data for each listing that can provide some insight into different geographical areas.
 ```{r}
 airbnb_clean = read.csv("airbnb.csv")
 
@@ -37,6 +37,7 @@ ggmap(m) +
     labs(title="Price Categories Mapped", y = "Latitude",x = "Longitude", color="Price Category")+ 
     scale_color_brewer(palette="Dark2")
 ```
+
 This plot shows us that the listings outside of the cities are usually cheaper than the listing inside the city, due to the high presence of orange and green dots on the outskirts of the graph, with more purple and blue as you get closer to the Loop, the heart of the city. There also seems to be a large number of purple points in the northern part of the city, towards Lake View and Lincoln Park (The area known as "Wrigleyville").
 
 
@@ -82,12 +83,16 @@ ggmap(m) +
     labs(title="# of Bedrooms Mapped", y = "Latitude",x = "Longitude", color="Bedrooms")+ 
     scale_color_brewer(palette="Set1")
 ```
+
 That NA value seems out of place, so we need to figure out how many there are, and if there are many, what does it mean?
+
 ```{r}
 na_bedrooms = airbnb_clean2[is.na(airbnb_clean2$bedrooms),]
 
 ```
+
 There is only one row with the NA value in bedrooms, and looking at the dataframe in rstudio, it seems that it is a small studio for which the lister put NA instead of 0. That should be switched to a zero.
+
 ```{r}
 
 airbnb_clean2[is.na(airbnb_clean2$bedrooms),]$bedrooms = 0
@@ -100,7 +105,9 @@ ggmap(m) +
     labs(title="# of Bedrooms Mapped", y = "Latitude",x = "Longitude", color="Bedrooms")+ 
     scale_color_brewer(palette="Set1")
 ```
+
 Much better. From this fixed plot we can see that it is rare for a listing in Chicago to have more than one or two bedrooms, based on the fact that there are a large number of blue, red and green points in the middle of the city. The presence of red points tell us that there are more studio apartments in the area, which would make sense considering the red points on this graph are right near the Magnificent Mile, one of the most sought after, and expensive, areas in the city.
+
 ---
 ```{r}
 ggplot(data=airbnb_clean2, aes(x=reorder(neighbourhood,-price), y=bedrooms)) +
