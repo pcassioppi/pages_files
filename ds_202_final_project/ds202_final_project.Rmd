@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Geographical Data
 The dataset provides useful location data for each listing that can provide some insight into different geographical areas.
-```{r}
+```{r, message=FALSE}
 airbnb_clean = read.csv("airbnb.csv")
 
 library(ggplot2)
@@ -30,7 +30,7 @@ airbnb_clean2 = airbnb_clean2[airbnb_clean2$neighbourhood!='West Elsdon',]
 ```
 
 
-```{r}
+```{r, message=FALSE}
 ggmap(m) +
     geom_point(data = airbnb_clean2, aes(x = longitude, y = latitude, color=price_category), size=.9, alpha=.75) +
     coord_sf(xlim = c(-87.8, -87.5), ylim = c(41.73, 42.05), expand = FALSE)+
@@ -57,7 +57,7 @@ ggplot(data=airbnb_clean2, aes(x=reorder(neighbourhood,-price), y=price)) +
 
 This graph tells us that our assumptions from the map were mostly true, as the neighborhoods that are closer to the center (the Loop, Near North Side, ) of the city are more expensive on average, and some northern neighborhoods (Lake View, North Center, Lincoln Park) are also towards the top of this graph.
 
-```{r}
+```{r, message=FALSE}
 ggmap(m) +
     geom_point(data = airbnb_clean2, aes(x = longitude, y = latitude, color=room_type), size = .9, alpha=.75) +
     coord_sf(xlim = c(-87.8, -87.5), ylim = c(41.73, 42.05), expand = FALSE)+
@@ -76,7 +76,7 @@ ggplot(airbnb_clean2, aes(x=reorder(neighbourhood,-price), fill=room_type))+geom
 
 This graph tells us some valuable information about the listings in the city. As the prices go up, typically, the odds of the listing being a entire apartment or house go up. This information could be useful to a potential lister in Chicago, if they want to charge more for their listing, they may have to rent out their whole unit.
 
-```{r}
+```{r, message=FALSE}
 ggmap(m) +
     geom_point(data = airbnb_clean2, aes(x = longitude, y = latitude, color=factor(bedrooms)), size=.9, alpha=.75) +
     coord_sf(xlim = c(-87.8, -87.5), ylim = c(41.73, 42.05), expand = FALSE)+
@@ -98,7 +98,7 @@ There is only one row with the NA value in bedrooms, and looking at the datafram
 airbnb_clean2[is.na(airbnb_clean2$bedrooms),]$bedrooms = 0
 ```
 
-```{r}
+```{r, message=FALSE}
 ggmap(m) +
     geom_point(data = airbnb_clean2, aes(x = longitude, y = latitude, color=factor(bedrooms)), size=.9, alpha=.75) +
     coord_sf(xlim = c(-87.8, -87.5), ylim = c(41.73, 42.05), expand = FALSE)+
@@ -109,6 +109,7 @@ ggmap(m) +
 Much better. From this fixed plot we can see that it is rare for a listing in Chicago to have more than one or two bedrooms, based on the fact that there are a large number of blue, red and green points in the middle of the city. The presence of red points tell us that there are more studio apartments in the area, which would make sense considering the red points on this graph are right near the Magnificent Mile, one of the most sought after, and expensive, areas in the city.
 
 ---
+
 ```{r}
 ggplot(data=airbnb_clean2, aes(x=reorder(neighbourhood,-price), y=bedrooms)) +
   geom_bar(position = "dodge", stat = "summary", fun.y = "mean", fill='Light Blue', color = 'Red')+
@@ -119,7 +120,7 @@ ggplot(data=airbnb_clean2, aes(x=reorder(neighbourhood,-price), y=bedrooms)) +
 
 This bar chart tells us that most listings in the city lie between one and two bedrooms. This graph also seems to show less of a relationship than the room type bar graph, as it does not seem to flow in a certain direction like the other one did.
 
-```{r}
+```{r, message=FALSE}
 ggmap(m) +
     geom_point(data = airbnb_clean2, aes(x = longitude, y = latitude, color=factor(accommodates)), size=.9, alpha=.75) +
     coord_sf(xlim = c(-87.8, -87.5), ylim = c(41.73, 42.05), expand = FALSE)+
