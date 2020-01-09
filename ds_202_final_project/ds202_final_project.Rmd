@@ -51,8 +51,7 @@ ggplot(data=airbnb_clean2, aes(x=reorder(neighbourhood,-price), y=price)) +
   scale_y_continuous(breaks = seq(0, max(airbnb_clean$price), by = 20))+
   labs(title="Neighbourhoods By Mean Price", y = "Mean Price ($)",x = "Neighbourhood")+
   stat_summary(aes(label=round(..y..,2)), fun.y=mean, geom="text", size=3, hjust=-0.1, angle=90)
-  #the labels on each bar were made using code similar to the one from user agstudy on stack over flow here:
-  #https://stackoverflow.com/questions/20139978/ggplot2-label-values-of-barplot-that-uses-fun-y-mean-of-stat-summary
+ 
 ```
 
 This graph tells us that our assumptions from the map were mostly true, as the neighborhoods that are closer to the center (the Loop, Near North Side, ) of the city are more expensive on average, and some northern neighborhoods (Lake View, North Center, Lincoln Park) are also towards the top of this graph.
